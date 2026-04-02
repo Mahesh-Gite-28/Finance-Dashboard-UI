@@ -9,8 +9,9 @@ import { TransactionsToolbar } from "./TransactionsToolbar";
 
 export function TransactionsContainer() {
   const { transactions, categories, filters, updateFilter } = useTransactions();
-  const { role, addTransaction, deleteTransaction } = useAppContext();
+  const { role, addTransaction, deleteTransaction, updateTransaction } = useAppContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const isAdmin = role === "admin";
 
@@ -38,6 +39,7 @@ export function TransactionsContainer() {
           transactions={transactions}
           isAdmin={isAdmin}
           onDelete={deleteTransaction}
+          onEdit={setEditingTransaction}
           groupBy={filters.groupBy}
         />
       ) : (
@@ -47,7 +49,19 @@ export function TransactionsContainer() {
           description="Try changing your search or advanced filters to find matching records."
         />
       )}
-      <AddTransactionModal isOpen={isAddModalOpen && isAdmin} onClose={() => setIsAddModalOpen(false)} onSubmit={addTransaction} />
+      <AddTransactionModal
+        isOpen={isAddModalOpen && isAdmin}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={addTransaction}
+        mode="add"
+      />
+      <AddTransactionModal
+        isOpen={Boolean(editingTransaction) && isAdmin}
+        onClose={() => setEditingTransaction(null)}
+        onSubmit={updateTransaction}
+        initialValues={editingTransaction}
+        mode="edit"
+      />
     </section>
   );
 }

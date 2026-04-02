@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "../ui/Modal";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
@@ -17,10 +17,29 @@ const initialForm = {
   amount: ""
 };
 
-export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
+export function AddTransactionModal({ isOpen, onClose, onSubmit, initialValues = null, mode = "add" }) {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setForm(
+        initialValues
+          ? { ...initialValues, amount: String(initialValues.amount) }
+          : initialForm
+      );
+      setError("");
+      setIsSubmitting(false);
+    }
+  }, [isOpen, initialValues]);
+
+  const handleClose = () => {
+    setForm(initialForm);
+    setError("");
+    setIsSubmitting(false);
+    onClose();
+  };
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -45,6 +64,7 @@ export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
     setError("");
     onSubmit({
       ...form,
+      ...(initialValues?.id ? { id: initialValues.id } : {}),
       description: cleanDescription,
       category: cleanCategory,
       amount
@@ -52,12 +72,12 @@ export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
     window.setTimeout(() => {
       setIsSubmitting(false);
       setForm(initialForm);
-      onClose();
+      handleClose();
     }, 300);
   };
 
   return (
-    <Modal isOpen={isOpen} title="Add Transaction" onClose={onClose}>
+    <Modal isOpen={isOpen} title={mode === "edit" ? "Edit Transaction" : "Add Transaction"} onClose={handleClose}>
       <form className="space-y-3" onSubmit={handleSubmit}>
         <Input label="Date" type="date" value={form.date} onChange={(e) => updateField("date", e.target.value)} />
         <Input
@@ -82,11 +102,11 @@ export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
         />
         {error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-expense dark:bg-red-950/40">{error}</p> : null}
         <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
+          <Button type="button" variant="secondary" onClick={handleClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save"}
+            {isSubmitting ? "Saving..." : mode === "edit" ? "Update" : "Save"}
           </Button>
         </div>
       </form>

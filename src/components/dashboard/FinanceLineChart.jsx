@@ -11,7 +11,7 @@ export function FinanceLineChart({ transactions }) {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#64748b" }} />
-            <YAxis tickFormatter={(value) => `$${value}`} tick={{ fontSize: 12, fill: "#64748b" }} />
+            <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 12, fill: "#64748b" }} />
             <Tooltip
               formatter={(value) => [formatCurrency(value), "Balance"]}
               labelFormatter={(value) => `Date: ${value}`}

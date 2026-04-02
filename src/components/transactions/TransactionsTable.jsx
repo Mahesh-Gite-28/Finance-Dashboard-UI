@@ -4,9 +4,9 @@ import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 
 function getGroupKey(transaction, groupBy) {
-  if (groupBy === "date") return formatDisplayDate(transaction.date);
+  if (groupBy === "date") return transaction.date;
   if (groupBy === "category") return transaction.category;
-  return "All Transactions";
+  return "all";
 }
 
 function buildRowsWithGroups(transactions, groupBy) {
@@ -19,10 +19,19 @@ function buildRowsWithGroups(transactions, groupBy) {
     return acc;
   }, {});
 
-  return Object.keys(groups).map((label) => ({ kind: "rows", label, items: groups[label] }));
+  const labels = Object.keys(groups).sort((a, b) => {
+    if (groupBy === "category") return a.localeCompare(b);
+    return new Date(b) - new Date(a);
+  });
+
+  return labels.map((label) => ({
+    kind: "rows",
+    label: groupBy === "date" ? formatDisplayDate(label) : label,
+    items: groups[label]
+  }));
 }
 
-export function TransactionsTable({ transactions, isAdmin, onDelete, groupBy = "none" }) {
+export function TransactionsTable({ transactions, isAdmin, onDelete, onEdit, groupBy = "none" }) {
   const grouped = buildRowsWithGroups(transactions, groupBy);
 
   return (
@@ -36,7 +45,7 @@ export function TransactionsTable({ transactions, isAdmin, onDelete, groupBy = "
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Amount</th>
-              {isAdmin ? <th className="px-4 py-3">Action</th> : null}
+              {isAdmin ? <th className="px-4 py-3">Actions</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -65,9 +74,14 @@ export function TransactionsTable({ transactions, isAdmin, onDelete, groupBy = "
                     </td>
                     {isAdmin ? (
                       <td className="px-4 py-3">
-                        <Button variant="danger" onClick={() => onDelete(tx.id)}>
-                          Delete
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="secondary" onClick={() => onEdit(tx)}>
+                            Edit
+                          </Button>
+                          <Button variant="danger" onClick={() => onDelete(tx.id)}>
+                            Delete
+                          </Button>
+                        </div>
                       </td>
                     ) : null}
                   </tr>

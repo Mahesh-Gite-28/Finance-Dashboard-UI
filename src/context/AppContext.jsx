@@ -54,11 +54,20 @@ export function AppProvider({ children }) {
   }, [transactions, role, theme, filters]);
 
   const addTransaction = (transaction) => {
+    if (role !== "admin") return;
     setTransactions((prev) => [{ ...transaction, id: crypto.randomUUID() }, ...prev]);
   };
 
   const deleteTransaction = (id) => {
+    if (role !== "admin") return;
     setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+  };
+
+  const updateTransaction = (updatedTransaction) => {
+    if (role !== "admin") return;
+    setTransactions((prev) =>
+      prev.map((tx) => (tx.id === updatedTransaction.id ? { ...tx, ...updatedTransaction } : tx))
+    );
   };
 
   const value = {
@@ -70,7 +79,8 @@ export function AppProvider({ children }) {
     setTheme,
     setFilters,
     addTransaction,
-    deleteTransaction
+    deleteTransaction,
+    updateTransaction
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
