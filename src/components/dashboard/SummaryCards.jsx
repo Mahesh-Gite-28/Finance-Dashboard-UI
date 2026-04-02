@@ -6,7 +6,7 @@ export function SummaryCards({ transactions }) {
   const balance = income - expense;
 
   const cards = [
-    { title: "Balance", value: formatCurrency(balance), valueClassName: "text-slate-900" },
+    { title: "Balance", value: formatCurrency(balance), valueClassName: "text-slate-900 dark:text-slate-100" },
     { title: "Income", value: formatCurrency(income), valueClassName: "text-income" },
     { title: "Expense", value: formatCurrency(expense), valueClassName: "text-expense" }
   ];

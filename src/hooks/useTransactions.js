@@ -14,6 +14,11 @@ function byAmount(a, b, order) {
 export function useTransactions() {
   const { transactions, filters, setFilters } = useAppContext();
 
+  const categories = useMemo(() => {
+    const unique = new Set(transactions.map((tx) => tx.category));
+    return ["all", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
+  }, [transactions]);
+
   const processedTransactions = useMemo(() => {
     const searchTerm = filters.search.toLowerCase().trim();
     const filtered = transactions.filter((tx) => {
@@ -22,7 +27,8 @@ export function useTransactions() {
         tx.description.toLowerCase().includes(searchTerm) ||
         tx.category.toLowerCase().includes(searchTerm);
       const matchesType = filters.type === "all" || tx.type === filters.type;
-      return matchesSearch && matchesType;
+      const matchesCategory = filters.category === "all" || tx.category === filters.category;
+      return matchesSearch && matchesType && matchesCategory;
     });
 
     return filtered.sort((a, b) => {
@@ -37,6 +43,7 @@ export function useTransactions() {
 
   return {
     transactions: processedTransactions,
+    categories,
     filters,
     updateFilter
   };

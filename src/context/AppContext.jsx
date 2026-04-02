@@ -7,8 +7,10 @@ const STORAGE_KEY = "finance-dashboard-state";
 const defaultFilters = {
   search: "",
   type: "all",
+  category: "all",
   sortBy: "date",
-  sortOrder: "desc"
+  sortOrder: "desc",
+  groupBy: "none"
 };
 
 function getInitialState() {
@@ -17,6 +19,7 @@ function getInitialState() {
     return {
       transactions: initialTransactions,
       role: "admin",
+      theme: "light",
       filters: defaultFilters
     };
   }
@@ -26,12 +29,14 @@ function getInitialState() {
     return {
       transactions: parsed.transactions || initialTransactions,
       role: parsed.role || "admin",
-      filters: parsed.filters || defaultFilters
+      theme: parsed.theme || "light",
+      filters: { ...defaultFilters, ...(parsed.filters || {}) }
     };
   } catch {
     return {
       transactions: initialTransactions,
       role: "admin",
+      theme: "light",
       filters: defaultFilters
     };
   }
@@ -41,11 +46,12 @@ export function AppProvider({ children }) {
   const initial = useMemo(() => getInitialState(), []);
   const [transactions, setTransactions] = useState(initial.transactions);
   const [role, setRole] = useState(initial.role);
+  const [theme, setTheme] = useState(initial.theme);
   const [filters, setFilters] = useState(initial.filters);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, role, filters }));
-  }, [transactions, role, filters]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ transactions, role, theme, filters }));
+  }, [transactions, role, theme, filters]);
 
   const addTransaction = (transaction) => {
     setTransactions((prev) => [{ ...transaction, id: crypto.randomUUID() }, ...prev]);
@@ -58,8 +64,10 @@ export function AppProvider({ children }) {
   const value = {
     transactions,
     role,
+    theme,
     filters,
     setRole,
+    setTheme,
     setFilters,
     addTransaction,
     deleteTransaction

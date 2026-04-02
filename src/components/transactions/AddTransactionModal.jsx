@@ -19,6 +19,8 @@ const initialForm = {
 
 export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
   const [form, setForm] = useState(initialForm);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -26,14 +28,32 @@ export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!form.date || !form.description || !form.category || !form.amount) return;
+    const amount = Number(form.amount);
+    const cleanDescription = form.description.trim();
+    const cleanCategory = form.category.trim();
 
+    if (!form.date || !cleanDescription || !cleanCategory || !form.amount) {
+      setError("Please complete all fields before saving.");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError("Amount must be a valid number greater than 0.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
     onSubmit({
       ...form,
-      amount: Number(form.amount)
+      description: cleanDescription,
+      category: cleanCategory,
+      amount
     });
-    setForm(initialForm);
-    onClose();
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+      setForm(initialForm);
+      onClose();
+    }, 300);
   };
 
   return (
@@ -60,11 +80,14 @@ export function AddTransactionModal({ isOpen, onClose, onSubmit }) {
           value={form.amount}
           onChange={(e) => updateField("amount", e.target.value)}
         />
+        {error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-expense dark:bg-red-950/40">{error}</p> : null}
         <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save"}
+          </Button>
         </div>
       </form>
     </Modal>

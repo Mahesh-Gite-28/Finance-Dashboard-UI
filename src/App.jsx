@@ -6,7 +6,7 @@ import Transactions from "./pages/Transactions";
 import Insights from "./pages/Insights";
 
 function AppContent() {
-  const { role, setRole } = useAppContext();
+  const { role, setRole, theme } = useAppContext();
   const [page, setPage] = useState("dashboard");
 
   const pageContent = useMemo(() => {
@@ -16,7 +16,13 @@ function AppContent() {
   }, [page]);
 
   return (
-    <AppShell role={role} onRoleChange={setRole} currentPage={page} onChangePage={setPage}>
+    <AppShell
+      role={role}
+      onRoleChange={setRole}
+      theme={theme}
+      currentPage={page}
+      onChangePage={setPage}
+    >
       {pageContent}
     </AppShell>
   );

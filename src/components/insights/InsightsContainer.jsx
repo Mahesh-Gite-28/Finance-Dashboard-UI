@@ -8,7 +8,13 @@ export function InsightsContainer() {
   const { transactions } = useAppContext();
 
   if (!transactions.length) {
-    return <EmptyState title="No insights available" description="Add transactions to unlock spending insights." />;
+    return (
+      <EmptyState
+        icon="lightbulb"
+        title="No insights available"
+        description="Add transactions to unlock spending behavior insights and monthly comparisons."
+      />
+    );
   }
 
   const highest = getHighestSpendingCategory(transactions);

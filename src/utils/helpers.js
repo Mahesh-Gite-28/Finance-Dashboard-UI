@@ -53,12 +53,16 @@ export function buildCategoryPieData(transactions) {
 export function exportTransactionsCsv(transactions) {
   const header = ["Date", "Description", "Category", "Type", "Amount"];
   const rows = transactions.map((tx) => [tx.date, tx.description, tx.category, tx.type, tx.amount]);
-  const csv = [header, ...rows].map((row) => row.join(",")).join("\n");
+  const sanitize = (value) => `"${String(value).replace(/"/g, '""')}"`;
+  const csv = [header, ...rows]
+    .map((row) => row.map(sanitize).join(","))
+    .join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.setAttribute("download", "transactions.csv");
+  const timestamp = new Date().toISOString().slice(0, 10);
+  link.setAttribute("download", `transactions-${timestamp}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

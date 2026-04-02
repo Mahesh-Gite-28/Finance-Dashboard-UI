@@ -5,7 +5,13 @@ import { EmptyState } from "../ui/EmptyState";
 
 export function DashboardContainer({ transactions }) {
   if (!transactions.length) {
-    return <EmptyState title="No data yet" description="Add transactions to see your dashboard summary and charts." />;
+    return (
+      <EmptyState
+        icon="chart"
+        title="No financial activity yet"
+        description="Add your first transaction to unlock summaries, trends, and category analytics."
+      />
+    );
   }
 
   return (

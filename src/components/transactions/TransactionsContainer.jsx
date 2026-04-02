@@ -8,24 +8,44 @@ import { TransactionsTable } from "./TransactionsTable";
 import { TransactionsToolbar } from "./TransactionsToolbar";
 
 export function TransactionsContainer() {
-  const { transactions, filters, updateFilter } = useTransactions();
+  const { transactions, categories, filters, updateFilter } = useTransactions();
   const { role, addTransaction, deleteTransaction } = useAppContext();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const isAdmin = role === "admin";
+
+  const handleExport = () => {
+    setIsExporting(true);
+    exportTransactionsCsv(transactions);
+    window.setTimeout(() => setIsExporting(false), 450);
+  };
 
   return (
     <section className="space-y-4">
       <TransactionsToolbar
-        filters={filters}
+        filters={{
+          ...filters,
+          categoryOptions: categories,
+          isExporting
+        }}
         onFilterChange={updateFilter}
         isAdmin={isAdmin}
         onAdd={() => setIsAddModalOpen(true)}
-        onExport={() => exportTransactionsCsv(transactions)}
+        onExport={handleExport}
       />
       {transactions.length ? (
-        <TransactionsTable transactions={transactions} isAdmin={isAdmin} onDelete={deleteTransaction} />
+        <TransactionsTable
+          transactions={transactions}
+          isAdmin={isAdmin}
+          onDelete={deleteTransaction}
+          groupBy={filters.groupBy}
+        />
       ) : (
-        <EmptyState title="No transactions found" description="Try changing your search/filter or add a new transaction." />
+        <EmptyState
+          icon="filter"
+          title="No transactions found"
+          description="Try changing your search or advanced filters to find matching records."
+        />
       )}
       <AddTransactionModal isOpen={isAddModalOpen && isAdmin} onClose={() => setIsAddModalOpen(false)} onSubmit={addTransaction} />
     </section>

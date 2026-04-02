@@ -19,9 +19,13 @@ const sortOrderOptions = [
 ];
 
 export function TransactionsToolbar({ filters, onFilterChange, isAdmin, onAdd, onExport }) {
+  const categoryOptions = (filters.categoryOptions || [{ value: "all", label: "All Categories" }]).map((value) =>
+    typeof value === "string" ? { value, label: value === "all" ? "All Categories" : value } : value
+  );
+
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
         <Input
           label="Search"
           placeholder="Description or category"
@@ -35,6 +39,12 @@ export function TransactionsToolbar({ filters, onFilterChange, isAdmin, onAdd, o
           onChange={(event) => onFilterChange("type", event.target.value)}
         />
         <Select
+          label="Category"
+          options={categoryOptions}
+          value={filters.category}
+          onChange={(event) => onFilterChange("category", event.target.value)}
+        />
+        <Select
           label="Sort Field"
           options={sortByOptions}
           value={filters.sortBy}
@@ -46,9 +56,19 @@ export function TransactionsToolbar({ filters, onFilterChange, isAdmin, onAdd, o
           value={filters.sortOrder}
           onChange={(event) => onFilterChange("sortOrder", event.target.value)}
         />
+        <Select
+          label="Group By"
+          options={[
+            { value: "none", label: "No Grouping" },
+            { value: "date", label: "Date" },
+            { value: "category", label: "Category" }
+          ]}
+          value={filters.groupBy}
+          onChange={(event) => onFilterChange("groupBy", event.target.value)}
+        />
         <div className="flex items-end gap-2">
           <Button variant="secondary" className="w-full" onClick={onExport}>
-            Export CSV
+            {filters.isExporting ? "Processing..." : "Export CSV"}
           </Button>
           {isAdmin ? (
             <Button className="w-full" onClick={onAdd}>
